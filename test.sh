@@ -1,3 +1,3 @@
 #!/bin/bash
-now=$(date + "%T")
+now=`date +"%Y-%m-%d %T"`
 echo "Testing the code at $now"
