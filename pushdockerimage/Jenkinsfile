@@ -1,0 +1,39 @@
+pipeline{
+    agent any
+    environment{
+        DOCKERHUB_CREDS = credentials('dockerhub')
+    }
+
+    stages{
+        stage('Clone Repo'){
+            steps{
+                echo "Checking out code..."
+                checkout scm
+                sh 'ls *'
+            }
+        }
+        stage('Build image'){
+            steps{
+                echo "Building Docker image..."
+                sh 'docker build -t rsxyz123/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
+            }
+        } 
+        stage('Docker Login'){
+            steps{
+                echo "Login to DockerHub..."
+                sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin' 
+            }
+        } 
+        stage('Docker Push'){
+            steps{
+                echo "Push image to DockerHub..."
+                sh 'docker push rsxyz123/jenkinstest:$BUILD_NUMBER' 
+            }
+        }                   
+    }
+    post{
+        always{
+            sh 'docker logout'
+        }
+    }
+}
