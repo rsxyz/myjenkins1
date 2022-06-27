@@ -2,6 +2,7 @@ pipeline{
     agent any
     environment{
         DOCKERHUB_CREDS = credentials('dockerhub')
+        TAG = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
     }
 
     stages{
@@ -14,8 +15,9 @@ pipeline{
         }
         stage('Build image'){
             steps{
-                echo "Building Docker image..."
-                sh 'docker build -t rsxyz123/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
+                echo "Building Docker image... ${BUILD_NUMBER}"
+                echo "Tag with latest commit id: ${TAG}"
+                sh 'docker build -t rsxyz123/jenkinstest:${TAG} ./pushdockerimage/'
             }
         } 
         stage('Docker Login'){
@@ -27,7 +29,7 @@ pipeline{
         stage('Docker Push'){
             steps{
                 echo "Push image to DockerHub..."
-                sh 'docker push rsxyz123/jenkinstest:$BUILD_NUMBER' 
+                sh 'docker push rsxyz123/jenkinstest:${TAG}' 
             }
         }                   
     }
